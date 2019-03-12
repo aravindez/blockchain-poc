@@ -1,0 +1,41 @@
+<p>Welcome {{user.name}}</p>
+<div class="row">
+    <div class="col-md-8">
+        <!-- button to create new block -->
+        <a (click)="createBlock()" class='btn btn-primary'>
+            <span class='glyphicon glyphicon-plus'></span> Create Block
+        </a>
+    </div>
+</div>
+ 
+<div class="row">
+    <div class="col-md-8">
+ 
+        <!-- HTML table for our list of block records -->
+        <table class='table table-hover table-responsive table-bordered'>
+ 
+            <tr>
+                <th>Block</th>
+                <th>Previous Hash</th>
+                <th>Timestamp</th>
+                <th>User ID</th>
+                <th>User Name</th>
+                <th>Data</th>
+                <th>Hash</th>
+                <th>Nonce</th>
+            </tr>
+ 
+            <!-- Use *ngFor directive to loop throught our list of blocks. -->
+            <tr *ngFor="let block of blocks">
+                <td>{{block.id}}</td>
+                <td>{{block.previous_hash}}</td>
+                <td>{{block.timestamp}}</td>
+                <td>{{block.user_id}}</td>
+                <td>{{block.user_name}}</td>
+                <td>{{block.data}}</td>
+                <td>{{block.hash}}</td>
+                <td>{{block.nonce}}</td>
+            </tr>
+        </table>
+    </div>
+</div>

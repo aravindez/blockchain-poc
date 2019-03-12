@@ -27,17 +27,6 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
   }
 
-  readUserData() {
-      this.loginService.getUser(this.user_cred.uname, Md5.hashStr(this.user_cred.pword.toString()).toString())
-        .subscribe(user => {
-          this.tempUser = user;
-          this.user = this.tempUser;
-          console.log(this.user);
-          console.log(typeof this.user);
-          this.tempUser = null;
-        })
-  }
-
   login() {
     //this.router.navigate(['/read-blocks']);
     this.invalid_cred = false;

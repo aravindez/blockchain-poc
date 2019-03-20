@@ -5,17 +5,15 @@ import { User } from '../../models/user';
 @Injectable({
   providedIn: 'root'
 })
-export class LoginService {
+export class UserService {
 
 
     // We need Http to talk to a remote server
     constructor(private _http : HttpClient) { }
 
     // Get user info from remote server.
-    getUser(uname, pword) {
+    getUsers(user_id: number) {
         return this._http
-            .get("http://localhost:5000/api/user/GetUserItem?uname="+uname+"&pword="+pword)
+            .get("http://localhost:5000/api/user/GetUsers?user_id="+user_id.toString())
     }
-
-    // Checks if pending block has been validated
 }

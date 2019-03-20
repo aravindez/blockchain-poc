@@ -1,3 +1,14 @@
-.form_title {
-    font-size: 20pt;
+.login-card {
+    color: #c1c1c1;
+    position: absolute;
+    width: 30%;
+    left: 35%;
+    top: 25%;
+}
+
+mat-progress-spinner {
+    position: absolute;
+    width: 30%;
+    top: 40%;
+    left: 40%;
 }

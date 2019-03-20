@@ -1,4 +1,4 @@
 export class Credentials {
-    public uname: String;
+    public email: String;
     public pword: String;
 }

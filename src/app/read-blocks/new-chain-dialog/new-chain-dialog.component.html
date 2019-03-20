@@ -1,0 +1,35 @@
+<h1 mat-dialog-title>New Chain</h1>
+<div mat-dialog-content>
+  <mat-accordion>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>Enter Chain Info</mat-panel-title>
+      </mat-expansion-panel-header>
+      <mat-form-field>
+        <input matInput placeholder="Name" [(ngModel)]="data.chainDialogName">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Init Data" [(ngModel)]="data.chainDialogInitData">
+      </mat-form-field>
+    </mat-expansion-panel>
+    <br>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>Select Users</mat-panel-title>
+      </mat-expansion-panel-header>
+      <!--<cdk-virtual-scroll-viewport itemSize="50">-->
+        <mat-selection-list #users [(ngModel)]="data.selectedUsers">
+          <!--<div *cdkVirtualFor="let user of data.users">{{user.name}}</div>-->
+          <mat-list-option *ngFor="let user of data.users" value={{user.id}}>
+            {{user.name}}
+          </mat-list-option>
+        </mat-selection-list>
+      <!--</cdk-virtual-scroll-viewport>-->
+    </mat-expansion-panel>
+  </mat-accordion>
+<br>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Create</button>
+</div>

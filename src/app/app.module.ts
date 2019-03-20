@@ -1,10 +1,14 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Routes } from '@angular/router';
+
+import { MaterialModule } from './material-module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 //import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
 //const config: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
@@ -18,6 +22,9 @@ import { RouterModule, Routes } from '@angular/router';
     AppRoutingModule,
     HttpClientModule,
     RouterModule,
+    MaterialModule,
+    BrowserAnimationsModule,
+    NgbModule.forRoot()
     //SocketIoModule.forRoot(config)
   ],
   providers: [],

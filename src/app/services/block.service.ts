@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
-//import { Response, Headers, RequestOptions } from '@angular/http';
 import { HttpClient } from '@angular/common/http';
-//import { Observable} from 'rxjs';
-//import { catchError } from 'rxjs/operators';
+import { Block } from 'src/models/block';
 
 @Injectable({
   providedIn: 'root'
@@ -13,8 +11,18 @@ export class BlockService {
     constructor(private _http : HttpClient) { }
 
     // Get list of blocks from remote server.
-    readBlocks() {
+    readBlocks(chain_id: number) {
         return this._http
-          .get("http://localhost:5000/api/Block");
+          .get("http://localhost:5000/api/Chain/GetChain?chain_id="+chain_id.toString());
+    }
+
+    createBlock(block: Block) {
+        return this._http
+          .post("http://localhost:5000/api/Block/PostNewBlock", block);
+    }
+
+    createInitBlock(block: Block) {
+        return this._http
+          .post("http://localhost:5000/api/Block/PostInitBlock", block);
     }
 }

@@ -1,0 +1,15 @@
+table {
+    position: absolute;
+    left: .5%;
+    width: 99%;
+}
+
+.mat-row:hover {
+    background-color: #c53c5d;/*858c93;*/
+}
+
+.subheader {
+    /*background-color: #c53c5d;*/
+    font-size: 20px;
+    height: 45px;
+}

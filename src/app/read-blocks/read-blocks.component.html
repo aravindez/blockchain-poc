@@ -1,41 +1,137 @@
-<p>Welcome {{user.name}}</p>
-<div class="row">
-    <div class="col-md-8">
+<mat-toolbar class="subheader">
+  <span><p>{{title}}</p></span>
+  <span class="space"></span>
+</mat-toolbar>
+<mat-grid-list cols=3 rowHeight="100px">
+    <mat-grid-tile>
+        <button mat-raised-button color="primary" (click)="openNewChainDialog()">
+            Create Chain
+        </button>
+    </mat-grid-tile>
+    <mat-grid-tile>
+        <mat-form-field>
+            <mat-select [(ngModel)]="newChainID" (ngModelChange)="changeChain(newChainID)" placeholder="Select Chain">
+                <div *ngFor="let chain of chains">
+                    <mat-option [value]="chain.id">{{chain.name}}</mat-option>
+                </div>
+            </mat-select>
+        </mat-form-field>
+    </mat-grid-tile>
+    <mat-grid-tile>
         <!-- button to create new block -->
-        <a (click)="createBlock()" class='btn btn-primary'>
-            <span class='glyphicon glyphicon-plus'></span> Create Block
-        </a>
-    </div>
-</div>
- 
-<div class="row">
-    <div class="col-md-8">
- 
-        <!-- HTML table for our list of block records -->
-        <table class='table table-hover table-responsive table-bordered'>
- 
-            <tr>
-                <th>Block</th>
-                <th>Previous Hash</th>
-                <th>Timestamp</th>
-                <th>User ID</th>
-                <th>User Name</th>
-                <th>Data</th>
-                <th>Hash</th>
-                <th>Nonce</th>
-            </tr>
- 
-            <!-- Use *ngFor directive to loop throught our list of blocks. -->
-            <tr *ngFor="let block of blocks">
-                <td>{{block.id}}</td>
-                <td>{{block.previous_hash}}</td>
-                <td>{{block.timestamp}}</td>
-                <td>{{block.user_id}}</td>
-                <td>{{block.user_name}}</td>
-                <td>{{block.data}}</td>
-                <td>{{block.hash}}</td>
-                <td>{{block.nonce}}</td>
-            </tr>
-        </table>
-    </div>
-</div>
+        <button mat-raised-button color="primary" (click)="openNewBlockDialog()">
+            Create Block
+        </button>
+    </mat-grid-tile>
+</mat-grid-list>
+<button mat-button (click)="pushAlert()">result value</button> 
+<!-- HTML table for our list of block records -->
+<table mat-table [dataSource]="blocksDataSource" class="mat-elevation-z8">
+
+    <!-- Timestamp Column -->
+    <ng-container matColumnDef="timestamp">
+        <th mat-header-cell *matHeaderCellDef> Timestamp </th>
+        <td mat-cell *matCellDef="let element"> {{element.timestamp}} </td>
+    </ng-container>
+
+    <!-- id Column --> 
+    <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef> ID </th>
+        <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+    </ng-container>
+
+    <!-- Previous Hash Column -->
+    <ng-container matColumnDef="previous_hash">
+        <th mat-header-cell *matHeaderCellDef> Previous Hash </th>
+        <td mat-cell *matCellDef="let element"> {{element.previous_hash}} </td>
+    </ng-container>
+
+    <!-- User ID Column -->
+    <ng-container matColumnDef="user_id">
+        <th mat-header-cell *matHeaderCellDef> User ID </th>
+        <td mat-cell *matCellDef="let element"> {{element.created_by}} </td>
+    </ng-container>
+
+    <!-- User Name Column -->
+    <ng-container matColumnDef="user_name">
+        <th mat-header-cell *matHeaderCellDef> User Name </th>
+        <td mat-cell *matCellDef="let element"> {{element.user_name}} </td>
+    </ng-container>
+
+    <!-- Data Column -->
+    <ng-container matColumnDef="data">
+        <th mat-header-cell *matHeaderCellDef> Data </th>
+        <td mat-cell *matCellDef="let element"> {{element.data}} </td>
+    </ng-container>
+
+    <!-- Hash Column -->
+    <ng-container matColumnDef="hash">
+        <th mat-header-cell *matHeaderCellDef> Hash </th>
+        <td mat-cell *matCellDef="let element"> {{element.hash}} </td>
+    </ng-container>
+
+    <!-- Nonce Column -->
+    <ng-container matColumnDef="nonce">
+        <th mat-header-cell *matHeaderCellDef> Nonce </th>
+        <td mat-cell *matCellDef="let element"> {{element.nonce}} </td>
+    </ng-container>
+
+    <!-- isValid Column -->
+    <ng-container matColumnDef="isValid">
+        <th mat-header-cell *matHeaderCellDef> Valid </th>
+        <td mat-cell *matCellDef="let element"> {{element.isValid}} </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+</table>
+
+<ng-template #newChain let-c="close" let-d="dismiss">
+    <!--Insert newChain Form
+    <table>
+      <td>
+        <tr>
+          <mat-form-field>
+              <input matInput type="text" name="chainName" placeholder="Name" [(ngModel)]="newChain.name">
+          </mat-form-field>
+        </tr>
+        <tr>
+          <mat-form-field>
+            <button mat-raised-button color="primary" (click)="createChain()">Create Chain</button>
+          </mat-form-field>
+        </tr>
+      </td>
+    </table>-->
+    chain worked
+</ng-template>
+
+<ng-template #newBlock let-modal let-c="close" let-d="dismiss">
+    <!--Insert newBlock Form-->
+    <!--<table>
+      <td>
+        <tr>
+          <mat-form-field>
+              <input matInput type="text" name="blockData" placeholder="Name" [(ngModel)]="newBlock.data">
+          </mat-form-field>
+        </tr>
+        <tr>
+          <mat-form-field>
+            <button mat-raised-button color="primary" (click)="createBlock()">Create Block</button>
+          </mat-form-field>
+        </tr>
+      </td>
+    </table>-->
+    <div class="modal-header">
+            <h4 class="modal-title" id="modal-basic-title">Profile update</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <h1>hit</h1>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Save</button>
+          </div>
+</ng-template>

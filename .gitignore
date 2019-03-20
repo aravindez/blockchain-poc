@@ -48,6 +48,9 @@ Thumbs.db
 # pem certificate
 *.pem
 
+# VSCode Workspace file
+*.code-workspace
+
 # socket.io test files
 /src/app/services/socket.service.ts
 /src/app/services/chain.service.ts

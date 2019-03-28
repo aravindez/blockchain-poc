@@ -9,6 +9,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { MaterialModule } from './material-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 //import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
 //const config: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
@@ -24,7 +25,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     RouterModule,
     MaterialModule,
     BrowserAnimationsModule,
-    NgbModule.forRoot()
+    NgbModule.forRoot(),
+    ToastrModule.forRoot()
     //SocketIoModule.forRoot(config)
   ],
   providers: [],

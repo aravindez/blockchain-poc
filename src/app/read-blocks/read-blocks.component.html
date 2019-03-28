@@ -24,9 +24,8 @@
         </button>
     </mat-grid-tile>
 </mat-grid-list>
-<button mat-button (click)="pushAlert()">result value</button> 
 <!-- HTML table for our list of block records -->
-<table mat-table [dataSource]="blocksDataSource" class="mat-elevation-z8">
+<table mat-table [(dataSource)]="blocksDataSource" class="mat-elevation-z8">
 
     <!-- Timestamp Column -->
     <ng-container matColumnDef="timestamp">
@@ -86,52 +85,4 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
 </table>
-
-<ng-template #newChain let-c="close" let-d="dismiss">
-    <!--Insert newChain Form
-    <table>
-      <td>
-        <tr>
-          <mat-form-field>
-              <input matInput type="text" name="chainName" placeholder="Name" [(ngModel)]="newChain.name">
-          </mat-form-field>
-        </tr>
-        <tr>
-          <mat-form-field>
-            <button mat-raised-button color="primary" (click)="createChain()">Create Chain</button>
-          </mat-form-field>
-        </tr>
-      </td>
-    </table>-->
-    chain worked
-</ng-template>
-
-<ng-template #newBlock let-modal let-c="close" let-d="dismiss">
-    <!--Insert newBlock Form-->
-    <!--<table>
-      <td>
-        <tr>
-          <mat-form-field>
-              <input matInput type="text" name="blockData" placeholder="Name" [(ngModel)]="newBlock.data">
-          </mat-form-field>
-        </tr>
-        <tr>
-          <mat-form-field>
-            <button mat-raised-button color="primary" (click)="createBlock()">Create Block</button>
-          </mat-form-field>
-        </tr>
-      </td>
-    </table>-->
-    <div class="modal-header">
-            <h4 class="modal-title" id="modal-basic-title">Profile update</h4>
-            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-              <h1>hit</h1>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Save</button>
-          </div>
-</ng-template>
+<mat-progress-spinner *ngIf="loading" color="primary" mode="indeterminate"></mat-progress-spinner>

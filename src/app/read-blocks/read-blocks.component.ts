@@ -11,6 +11,7 @@ import { NewBlockDialogComponent } from './new-block-dialog/new-block-dialog.com
 import { NewChainDialogComponent } from './new-chain-dialog/new-chain-dialog.component';
 import * as utils from '../../utils';
 import { sha256 } from 'js-sha256';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'app-read-blocks',
@@ -44,24 +45,26 @@ export class ReadBlocksComponent implements OnInit {
     newBlockData: any;
     newChainName: any;
     newChainInitData: any;
+    newChainGroups: any;
     newChainUsers: any;
+
+    loading: boolean;
 
     // initialize blockService to retrieve list blocks in the ngOnInit()
     constructor(private chainService: ChainService, private blockService: BlockService,
         private userService: UserService, private validationService: ValidationService,
-        public dialog: MatDialog, private snackBar: MatSnackBar){}
+        public dialog: MatDialog, private toastr: ToastrService){}
 
     // Read blocks from API.
     ngOnInit(){
+        this.loading = true;
         this.user = JSON.parse(sessionStorage.getItem("user"));
         this.getUsers(this.user.id);
         this.title = "Dashboard - Welcome "+this.user.name;
 
         this.getChains(true);
         if (sessionStorage.getItem("failure") !== null) {
-            this.snackBar.open(sessionStorage.getItem("failure"), "", {
-                duration: 3000
-            }); 
+            this.toastr.error(sessionStorage.getItem("failure"));
         }
     }
 
@@ -78,6 +81,7 @@ export class ReadBlocksComponent implements OnInit {
     }
 
     getChains(init: boolean = false) {
+        this.loading = true;
         this.chainService.getChains(this.user.id)
           .subscribe(_chains => {
             this.tempList = _chains;
@@ -106,7 +110,6 @@ export class ReadBlocksComponent implements OnInit {
               this.tempList = null;
               this.tempBlock = null;
               this.getValidations();
-              this.blocksDataSource = new MatTableDataSource(this.blocks);
             });
     }
 
@@ -117,8 +120,20 @@ export class ReadBlocksComponent implements OnInit {
                 .subscribe(result => {
                     validResult = result;
                     this.blocks[i].isValid = validResult;
+                    if (i==this.blocks.length-1) {
+                        let j: number = 0;
+                        /*
+                        while (j < this.blocks.length) {
+                            if (this.blocks[j].isValid=="pending" && this.blocks[j].created_by!=this.user.id) {
+                                this.blocks.splice(j, 1);
+                            } else { j++; }
+                        }
+                        */
+                        this.blocksDataSource = new MatTableDataSource(this.blocks);
+                        this.loading = false;
+                    }
                 });
-        }
+       }
     }
 
     changeChain(chain_id: number) {
@@ -135,18 +150,38 @@ export class ReadBlocksComponent implements OnInit {
 
     openNewChainDialog() {
         const dialogRef = this.dialog.open(NewChainDialogComponent, {
-            data: { users: this.users }
+            data: { user: this.user, users: this.users }
           });
         
-          dialogRef.beforeClose().subscribe(result => {
-            let chainDialogName = result.chainDialogName;
-            let chainDialogInitData = result.chainDialogInitData;
-            let selectedUsers = result.selectedUsers;
-            this.newChainName = chainDialogName;
-            this.newChainInitData = chainDialogInitData;
-            this.newChainUsers = selectedUsers;
-            this.createChain();
-          });
+        dialogRef.beforeClose().subscribe(result => {
+            if (result != undefined) {
+                this.newChainName = result.chainDialogName;
+                this.newChainInitData = result.chainDialogInitData;
+                this.newChainUsers = result.selectedUsers;
+                result.selectedGroups.forEach(group_id => {
+                let results: any; let user: User;
+                    this.userService.getGroupUsers(group_id)
+                        .subscribe(_users => {
+                            results = _users;
+                            results.forEach(result => {
+                                user = result;
+                                result = user;
+                            });
+                            let users: User[] = results;
+                            let limit = users.length; let i = 1;
+                            users.forEach(user => {
+                                if (this.newChainUsers != undefined) {
+                                    if (this.newChainUsers.indexOf(user.id.toString()) == -1) {
+                                        this.newChainUsers.push(user.id);
+                                    }
+                                } else { this.newChainUsers = [user.id]; }
+                                if (i==limit) { console.log(this.newChainUsers); this.createChain(); }
+                                i++;
+                            });
+                        });
+                });
+            }
+        });
     }
 
     createChain() {
@@ -174,13 +209,9 @@ export class ReadBlocksComponent implements OnInit {
                 postResult = _result;
                 this.newChainResult = postResult;
                 if (this.newChainResult == 0) {
-                    this.snackBar.open("failed to create chain.", "", {
-                        duration: 1000
-                    });
+                    this.toastr.error("Failed to create chain.", "Chain Failure");
                 } else {
-                    this.snackBar.open("new chain created: "+this.newChainName, "", {
-                        duration: 1000
-                    });
+                    this.toastr.success(this.newChainName, "New Chain Created");
                     initBlock.chain_id = this.newChainResult;
                     this.postInitBlock(initBlock);
                 }
@@ -195,14 +226,10 @@ export class ReadBlocksComponent implements OnInit {
                 rawResult = result;
                 initBlockResult = rawResult;
                 if (initBlockResult) {
-                    this.snackBar.open("new chain initiated: "+initBlock.data, "", {
-                        duration: 1001
-                    });
+                    this.toastr.success(initBlock.data.toString(), "New Chain Initiated");
                     this.getChains();
                 } else {
-                    this.snackBar.open("failed to initiate new chain.", "", {
-                        duration: 1000
-                    });
+                    this.toastr.error("Failed to initiate chain.", "Chain Failure");
                 }
             });
     }
@@ -213,23 +240,25 @@ export class ReadBlocksComponent implements OnInit {
       });
     
       dialogRef.afterClosed().subscribe(result => {
-        this.newBlockData = result;
+        if (result != undefined) {
+          this.newBlockData = result;
 
-        let newBlock: Block = new Block()
-        newBlock.previous_hash = this.blocks[this.blocks.length-1].hash;
-        newBlock.created_by = this.user.id;
-        newBlock.data = +this.newBlockData;
-        newBlock.nonce = utils.nonce(newBlock);
-        let json: string = JSON.stringify({
-            created_by: newBlock.created_by,
-            data: newBlock.data,
-            nonce: newBlock.nonce
-        });
-        newBlock.hash = sha256(newBlock.previous_hash+json);
-        newBlock.chain_id = this.chain.id;
+          let newBlock: Block = new Block()
+          newBlock.previous_hash = this.blocks[this.blocks.length-1].hash;
+          newBlock.created_by = this.user.id;
+          newBlock.data = +this.newBlockData;
+          newBlock.nonce = utils.nonce(newBlock);
+          let json: string = JSON.stringify({
+              created_by: newBlock.created_by,
+              data: newBlock.data,
+              nonce: newBlock.nonce
+          });
+          newBlock.hash = sha256(newBlock.previous_hash+json);
+          newBlock.chain_id = this.chain.id;
 
-        this.createBlock(newBlock);
-        this.newBlockData = "";
+          this.createBlock(newBlock);
+          this.newBlockData = "";
+        }
       });
     }
 
@@ -241,14 +270,10 @@ export class ReadBlocksComponent implements OnInit {
                 rawResult = result;
                 newBlockResult = rawResult;
                 if (newBlockResult) {
-                    this.snackBar.open("block added: "+newBlock.data, "", {
-                        duration: 1000
-                    });
+                    this.toastr.success(newBlock.data.toString(), "Block Added");
                     this.getBlocks();
                 } else {
-                    this.snackBar.open("invalid data: "+newBlock.data, "", {
-                        duration: 1000
-                    });
+                    this.toastr.error(newBlock.data.toString(), "Invalid Data");
                 }
             });
     }

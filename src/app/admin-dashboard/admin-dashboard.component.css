@@ -1,0 +1,29 @@
+.subheader {
+    /*background-color: #c53c5d;*/
+    font-size: 20px;
+    height: 45px;
+}
+
+table {
+    margin-left: 2.5%;
+    margin-bottom: 2.5%;
+    width: 95%;
+}
+
+.mat-row:hover {
+    background-color: #666666;
+}
+
+mat-paginator {
+    position: relative;
+    width: 35%;
+    left: 32.5%;
+    margin-bottom: 1%;
+}
+
+mat-progress-spinner {
+    position: absolute;
+    width: 60%;
+    top: 40%;
+    left: 40%;
+}

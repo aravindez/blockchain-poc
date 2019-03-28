@@ -1,16 +1,31 @@
 <h1 mat-dialog-title>New Chain</h1>
 <div mat-dialog-content>
-  <mat-accordion>
+  <mat-accordion (keyup.enter)="submit()">
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>Enter Chain Info</mat-panel-title>
       </mat-expansion-panel-header>
-      <mat-form-field>
+      <mat-form-field (click)="onFieldClick('Name')" color="nameColor">
         <input matInput placeholder="Name" [(ngModel)]="data.chainDialogName">
       </mat-form-field>
-      <mat-form-field>
+      &nbsp;&nbsp;&nbsp;
+      <mat-form-field (click)="onFieldClick('Init Data')" color="dataColor">
         <input matInput placeholder="Init Data" [(ngModel)]="data.chainDialogInitData">
       </mat-form-field>
+    </mat-expansion-panel>
+    <br>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>Select Groups</mat-panel-title>
+      </mat-expansion-panel-header>
+      <!--<cdk-virtual-scroll-viewport itemSize="50">-->
+        <mat-selection-list color="groupsColor" [(ngModel)]="data.selectedGroups">
+          <!--<div *cdkVirtualFor="let user of data.users">{{user.name}}</div>-->
+          <mat-list-option *ngFor="let group of groups" (click)="selectGroup(group.id)" value={{group.id}}>
+            {{group.name}}
+          </mat-list-option>
+        </mat-selection-list>
+      <!--</cdk-virtual-scroll-viewport>-->
     </mat-expansion-panel>
     <br>
     <mat-expansion-panel>
@@ -18,9 +33,9 @@
         <mat-panel-title>Select Users</mat-panel-title>
       </mat-expansion-panel-header>
       <!--<cdk-virtual-scroll-viewport itemSize="50">-->
-        <mat-selection-list #users [(ngModel)]="data.selectedUsers">
+        <mat-selection-list color="usersColor" [(ngModel)]="data.selectedUsers">
           <!--<div *cdkVirtualFor="let user of data.users">{{user.name}}</div>-->
-          <mat-list-option *ngFor="let user of data.users" value={{user.id}}>
+          <mat-list-option *ngFor="let user of data.users" (click)="onFieldClick('Select Users')" value={{user.id}}>
             {{user.name}}
           </mat-list-option>
         </mat-selection-list>
@@ -30,6 +45,7 @@
 <br>
 </div>
 <div mat-dialog-actions>
-  <button mat-button (click)="onNoClick()">Cancel</button>
-  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Create</button>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+  <!--<button mat-button [mat-dialog-close]="data" cdkFocusInitial>Create</button>-->
+  <button mat-button (click)="submit()" cdkFocusInitial>Create</button>
 </div>

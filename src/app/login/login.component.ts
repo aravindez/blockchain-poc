@@ -7,8 +7,6 @@ import { ValidationService } from '../services/validation.service';
 import { ChainService } from '../services/chain.service';
 import { LoginService } from '../services/login.service';
 import {Md5} from 'ts-md5/dist/md5';
-import { UseExistingWebDriver } from 'protractor/built/driverProviders';
-import { routerNgProbeToken } from '@angular/router/src/router_module';
 import { Block } from 'src/models/block';
 import * as utils from '../../utils';
 import { MatSnackBar } from '@angular/material';
@@ -39,12 +37,21 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
     if (sessionStorage.getItem("user") !== null) {
       this.loading = true;
-      this.getPendingBlocks(JSON.parse(sessionStorage.getItem("user")).id);
-      this.router.navigate(['/read-blocks']);
+      let user: User = JSON.parse(sessionStorage.getItem("user"))
+      if (user.admin == 1) {
+        this.router.navigate(['/admin-dashboard']);
+      } else {
+        this.getPendingBlocks(user.id);
+      }
     } else if (localStorage.getItem("user") !== null) {
-      sessionStorage.setItem("user", JSON.parse(localStorage.getItem("user")).stringify());
+      let user: User = JSON.parse(localStorage.getItem("user"))
+      sessionStorage.setItem("user", JSON.stringify(user));
       this.loading = true;
-      this.getPendingBlocks(JSON.parse(sessionStorage.getItem("user")).id);
+      if (user.admin == 1) {
+        this.router.navigate(['/admin-dashboard']);
+      } else {
+        this.getPendingBlocks(user.id);
+      }
     }
   }
 
@@ -75,8 +82,12 @@ export class LoginComponent implements OnInit {
               sessionStorage.setItem("user", JSON.stringify(this.user));
             }
             this.loading = true;
-            this.storeChains(this.user.id);
-            this.getPendingBlocks(this.user.id);
+            if (this.user.admin == 1) {
+              this.router.navigate(['/admin-dashboard']);
+            } else {
+              this.storeChains(this.user.id);
+              this.getPendingBlocks(this.user.id);
+            }
           }
         })
     }

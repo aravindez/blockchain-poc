@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { User } from '../../models/user';
+import { UserGroup } from 'src/models/usergroup';
 
 @Injectable({
   providedIn: 'root'
@@ -15,5 +16,31 @@ export class UserService {
     getUsers(user_id: number) {
         return this._http
             .get("http://localhost:5000/api/user/GetUsers?user_id="+user_id.toString())
+    }
+
+    getUserGroups(user_id: number) {
+        return this._http
+            .get("http://localhost:5000/api/user/GetUserGroups?user_id="+user_id.toString())
+    }
+
+    getGroups() {
+        return this._http
+            .get("http://localhost:5000/api/user/GetGroups");
+    }
+
+    getGroupUsers(group_id: number, notIn: boolean = false) {
+        return this._http
+            .get("http://localhost:5000/api/user/GetGroupUsers?group_id=" + group_id.toString()
+                                                            + "&notIn=" + notIn.toString());
+    }
+
+    postUser(newUser: User) {
+        return this._http
+            .post("http://localhost:5000/api/user/PostUser", newUser);
+    }
+
+    postGroup(ug: UserGroup) {
+        return this._http
+            .post("http://localhost:5000/api/user/PostGroup", ug);
     }
 }

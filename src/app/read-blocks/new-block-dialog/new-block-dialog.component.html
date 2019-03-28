@@ -1,11 +1,12 @@
 <h1 mat-dialog-title>New Block</h1>
 <div mat-dialog-content>
   <p>New Block Data:</p>
-  <mat-form-field>
-    <input matInput [(ngModel)]="data.newBlockData">
+  <mat-form-field [color]="color" (click)="onFieldClick()" (keyup.enter)="submit()">
+    <input matInput [(ngModel)]="data.newBlockData" cdkFocusInitial>
   </mat-form-field>
 </div>
 <div mat-dialog-actions>
-  <button mat-button (click)="onNoClick()">Cancel</button>
-  <button mat-button [mat-dialog-close]="data.newBlockData" cdkFocusInitial>Create</button>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+  <!--<button mat-button [mat-dialog-close]="data.newBlockData">Create</button>-->
+  <button mat-button (click)="submit()">Create</button>
 </div>

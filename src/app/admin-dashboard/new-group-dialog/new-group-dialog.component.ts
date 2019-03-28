@@ -6,35 +6,45 @@ import { User } from 'src/models/user';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
-  selector: 'app-new-chain-dialog',
-  templateUrl: './new-chain-dialog.component.html',
-  styleUrls: ['./new-chain-dialog.component.css']
+  selector: 'app-new-group-dialog',
+  templateUrl: './new-group-dialog.component.html',
+  styleUrls: ['./new-group-dialog.component.css']
 })
 
-export class NewChainDialogComponent implements OnInit {
+export class NewGroupDialogComponent implements OnInit {
 
   nameColor: String = "accent";
-  dataColor: String = "accent";
-  usersColor: String = "accent";
   emptyErrorFields: string[] = [];
+  users: User[] = [];
   groups: Group[] = [];
   groupDict: {[id: number]: User[]} = {};
 
   constructor(
-    public dialogRef: MatDialogRef<NewChainDialogComponent>,
+    public dialogRef: MatDialogRef<NewGroupDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public toastr: ToastrService,
     private userService: UserService) {}
 
   ngOnInit() {
-    let results: any; let result: any;
-    let group: Group;
-    this.userService.getUserGroups(this.data.user.id)
+    let userResults: any; let userResult: any;
+    let user: User;
+    this.userService.getUsers(this.data.user_id)
       .subscribe(_results => {
-        results = _results;
-        results.forEach(_result => {
-          result = _result;
-          group = result;
+        userResults = _results;
+        userResults.forEach(_result => {
+          userResult = _result;
+          user = userResult;
+          this.users.push(user);
+        })
+      });
+    let groupResults: any; let groupResult: any;
+    let group: Group;
+    this.userService.getGroups()
+      .subscribe(_results => {
+        groupResults = _results;
+        groupResults.forEach(_result => {
+          groupResult = _result;
+          group = groupResult;
           this.groups.push(group);
           /*
           let results: any; let user: User;
@@ -77,57 +87,26 @@ export class NewChainDialogComponent implements OnInit {
   */
 
   color(fields: string[], error: boolean) {
-    // TODO: ENTIRE COLOR FUNCTIONALITY ISN'T WORKING
-    fields.forEach(field => {
-      if (field == "Name") { this.nameColor = error ? "warn" : "accent"; }
-      else if (field == "Init Data") { this.dataColor = error ? "warn" : "accent"; }
-      else if (field == "Select Users") { this.usersColor = error ? "warn" : "accent"; }
-    });
+    if (fields.indexOf("Name") != -1) {
+      this.nameColor = error ? "warn" : "accent";
+    }
   }
 
   submit(): void {
     let isError: boolean = false;
-    let isEmptyError: boolean = false;
-    let isInvalidError: boolean = false;
     this.emptyErrorFields = [];
-    if (this.data.chainDialogName == undefined || this.data.chainDialogName == "") {
+    if (this.data.groupName == undefined || this.data.groupDialogName == "") {
       isError = true;
-      isEmptyError = true;
       this.emptyErrorFields.push("Name");
-    }
-    if (this.data.chainDialogInitData == undefined || this.data.chainDialogInitData == "") {
-      isError = true;
-      isEmptyError = true;
-      this.emptyErrorFields.push("Init Data");
     }
     if ((this.data.selectedGroups == undefined || this.data.selectedGroups.length == 0) && (this.data.selectedUsers == undefined || this.data.selectedUsers.length == 0)) {
       isError = true;
-      isEmptyError = true;
       this.emptyErrorFields.push("Select Users/Groups");
     }
-    if (/^\d+$/.test(this.data.chainDialogInitData)==false) {
-      isError = true;
-      isInvalidError = true;
-    }
     if (isError) {
-      if (isEmptyError && isInvalidError) {
-        this.throwEmptyError(this.emptyErrorFields);
-        this.color(this.emptyErrorFields, true);
-        this.color(["Select Users"], true);
-        this.throwInvalidError();
-      } else if (isEmptyError) {
-        this.throwEmptyError(this.emptyErrorFields);
-        this.color(this.emptyErrorFields, true);
-      } else if (isInvalidError) {
-        this.throwInvalidError();
-        this.color(["Select Users"], true);
-      }
+      this.throwEmptyError(this.emptyErrorFields);
+      this.color(this.emptyErrorFields, true);
     } else { this.dialogRef.close(this.data); }
-  }
-
-  throwInvalidError() {
-    let invalidErrorString: string = "Init Data must be an integer";
-    this.toastr.error(invalidErrorString, "Invalid Input");
   }
 
   throwEmptyError(emptyErrorFields: string[]) {

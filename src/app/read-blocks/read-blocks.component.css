@@ -5,11 +5,18 @@ table {
 }
 
 .mat-row:hover {
-    background-color: #c53c5d;/*858c93;*/
+    background-color: #666666;
 }
 
 .subheader {
     /*background-color: #c53c5d;*/
     font-size: 20px;
     height: 45px;
+}
+
+mat-progress-spinner {
+    position: absolute;
+    width: 30%;
+    top: 40%;
+    left: 40%;
 }

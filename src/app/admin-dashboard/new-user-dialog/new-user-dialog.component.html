@@ -1,0 +1,26 @@
+<h1 mat-dialog-title>New User</h1>
+<div mat-dialog-content>
+  <mat-form-field (click)="onFieldClick('fname')" color="fnameColor">
+    <input matInput placeholder="First Name" [(ngModel)]="data.newFname">
+  </mat-form-field>
+  &nbsp;&nbsp;&nbsp;
+  <mat-form-field (click)="onFieldClick('lname')" color="lnameColor">
+    <input matInput placeholder="Last Name" [(ngModel)]="data.newLname">
+  </mat-form-field>
+  <br>
+  <mat-form-field (click)="onFieldClick('email')" color="emailColor">
+    <input matInput type="email" placeholder="Email" [(ngModel)]="data.newEmail">
+  </mat-form-field>
+  <br>
+  <mat-form-field (click)="onFieldClick('pword')" color="pwordColor">
+    <input matInput type="password" placeholder="Password" [(ngModel)]="data.newPassword">
+  </mat-form-field>
+  &nbsp;&nbsp;&nbsp;
+  <mat-form-field (click)="onFieldClick('cpword')" color="cpwordColor">
+    <input matInput type="password" placeholder="Confirm Password" [(ngModel)]="data.confirmPassword">
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+  <button mat-button (click)="submit()" cdkFocusInitial>Create</button>
+</div>

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { User } from '../../models/user';
 import { UserGroup } from 'src/models/usergroup';
+import { Group } from 'src/models/group';
 
 @Injectable({
   providedIn: 'root'
@@ -39,8 +40,13 @@ export class UserService {
             .post("http://localhost:5000/api/user/PostUser", newUser);
     }
 
-    postGroup(ug: UserGroup) {
+    postUserGroup(ug: UserGroup) {
         return this._http
-            .post("http://localhost:5000/api/user/PostGroup", ug);
+            .post("http://localhost:5000/api/user/PostUserGroup", ug);
+    }
+
+    postGroup(group: Group) {
+        return this._http
+            .post("http://localhost:5000/api/user/PostGroup", group);
     }
 }

@@ -41,7 +41,7 @@ export class AdminDashboardComponent implements OnInit {
     this.getUserList(this.user.id);
   }
 
-  getGroupList() {
+  getGroupList(set: boolean = false) {
     this.groups = [];
     let results: any; let result: any;
     let group: Group;
@@ -53,6 +53,10 @@ export class AdminDashboardComponent implements OnInit {
           group = result;
           this.groups.push(group);
         });
+        if (set) {
+          this.newGroupID = this.groups[this.groups.length-1].id;
+          this.getUserList(this.user.id, this.newGroupID);
+        }
       });
   }
 
@@ -112,6 +116,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   prettifyList(groups: string[]) {
+    if (groups.length == 0) { return "-" }
     let ret: string = "";
     if (groups.length > 1) {
       for (let i: number = 0; i<(groups.length-1); i++) {
@@ -119,6 +124,7 @@ export class AdminDashboardComponent implements OnInit {
       }
     }
     ret += groups[groups.length-1]
+    if (ret == undefined || ret == "") { ret = "no groups"; }
     return ret;
   }
 
@@ -133,7 +139,7 @@ export class AdminDashboardComponent implements OnInit {
           let ug: UserGroup = new UserGroup();
           ug.group_id = this.newGroupID; ug.user_id = user_id;
           let result: any; let success: boolean;
-          this.userService.postGroup(ug)
+          this.userService.postUserGroup(ug)
             .subscribe(_result => {
               result = _result;
               success = result;
@@ -150,7 +156,9 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   openUserFormDialog() {
-    const dialogRef = this.dialog.open(NewUserDialogComponent);
+    const dialogRef = this.dialog.open(NewUserDialogComponent, {
+      data: {}
+    });
   
     dialogRef.beforeClose().subscribe(result => {
       if (result != undefined) {
@@ -186,7 +194,55 @@ export class AdminDashboardComponent implements OnInit {
   
     dialogRef.beforeClose().subscribe(result => {
       // TODO: IMPLEMENT CREATE NEW GROUP FROM DIALOG DATA
+      if (result != undefined) {
+        let group: Group = new Group();
+        group.name = result.groupName;
+        group.users = result.selectedUsers;
+        if (result.selectedGroups != undefined) {
+          let limitI = result.selectedGroups.length; let i = 0;
+          result.selectedGroups.forEach(group_id => {
+            let results: any; let user: User;
+            this.userService.getGroupUsers(group_id)
+                .subscribe(_users => {
+                    i++;
+                    results = _users;
+                    results.forEach(result => {
+                        user = result;
+                        result = user;
+                    });
+                    let groupUsers: User[] = results;
+                    let limitJ = groupUsers.length; let j = 1;
+                    groupUsers.forEach(user => {
+                        if (group.users != undefined) {
+                            if (group.users.indexOf(user.id.toString()) == -1) {
+                                group.users.push(user.id.toString());
+                            }
+                        } else { group.users = [user.id.toString()]; }
+                        if (i==limitI && j==limitJ) {
+                          console.log(group.users); this.createGroup(group);
+                        }
+                        j++;
+                    });
+                });
+            });
+        } else { this.createGroup(group); }
+      }
     });
+  }
+
+  createGroup(group: Group) {
+    let result: any; let success: boolean;
+    this.userService.postGroup(group)
+      .subscribe(_result => {
+        result = _result;
+        success = result;
+        if (success) {
+          this.toastr.success(group.name, "Group Successfully Created");
+          this.getGroupList(true);
+        } else {
+          this.toastr.error(group.name, "Failed to Create Group");
+        }
+      });
   }
 
 }

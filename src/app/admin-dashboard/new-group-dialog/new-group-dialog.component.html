@@ -1,7 +1,7 @@
 <h1 mat-dialog-title>New Group</h1>
 <div mat-dialog-content>
   <mat-form-field (click)="onFieldClick('Name')" color="nameColor">
-    <input matInput placeholder="Name" [(ngModel)]="data.groupDialogName">
+    <input matInput placeholder="Name" [(ngModel)]="data.groupName">
   </mat-form-field>
   <mat-accordion (keyup.enter)="submit()">
     <mat-expansion-panel>
@@ -11,7 +11,7 @@
       <!--<cdk-virtual-scroll-viewport itemSize="50">-->
       <mat-selection-list color="groupsColor" [(ngModel)]="data.selectedGroups">
         <!--<div *cdkVirtualFor="let user of data.users">{{user.name}}</div>-->
-        <mat-list-option *ngFor="let group of groups" (click)="selectGroup(group.id)" value={{group.id}}>
+        <mat-list-option *ngFor="let group of groups" value={{group.id}}>
           {{group.name}}
         </mat-list-option>
       </mat-selection-list>
@@ -25,7 +25,7 @@
       <!--<cdk-virtual-scroll-viewport itemSize="50">-->
       <mat-selection-list color="usersColor" [(ngModel)]="data.selectedUsers">
         <!--<div *cdkVirtualFor="let user of data.users">{{user.name}}</div>-->
-        <mat-list-option *ngFor="let user of users" (click)="onFieldClick('Select Users')" value={{user.id}}>
+        <mat-list-option *ngFor="let user of users" value={{user.id}}>
           {{user.name}}
         </mat-list-option>
       </mat-selection-list>

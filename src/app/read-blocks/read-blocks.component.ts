@@ -160,25 +160,25 @@ export class ReadBlocksComponent implements OnInit {
                 this.newChainUsers = result.selectedUsers;
                 result.selectedGroups.forEach(group_id => {
                 let results: any; let user: User;
-                    this.userService.getGroupUsers(group_id)
-                        .subscribe(_users => {
-                            results = _users;
-                            results.forEach(result => {
-                                user = result;
-                                result = user;
-                            });
-                            let users: User[] = results;
-                            let limit = users.length; let i = 1;
-                            users.forEach(user => {
-                                if (this.newChainUsers != undefined) {
-                                    if (this.newChainUsers.indexOf(user.id.toString()) == -1) {
-                                        this.newChainUsers.push(user.id);
-                                    }
-                                } else { this.newChainUsers = [user.id]; }
-                                if (i==limit) { console.log(this.newChainUsers); this.createChain(); }
-                                i++;
-                            });
+                this.userService.getGroupUsers(group_id)
+                    .subscribe(_users => {
+                        results = _users;
+                        results.forEach(result => {
+                            user = result;
+                            result = user;
                         });
+                        let users: User[] = results;
+                        let limit = users.length; let i = 1;
+                        users.forEach(user => {
+                            if (this.newChainUsers != undefined) {
+                                if (this.newChainUsers.indexOf(user.id.toString()) == -1) {
+                                    this.newChainUsers.push(user.id);
+                                }
+                            } else { this.newChainUsers = [user.id]; }
+                            if (i==limit) { console.log(this.newChainUsers); this.createChain(); }
+                            i++;
+                        });
+                    });
                 });
             }
         });

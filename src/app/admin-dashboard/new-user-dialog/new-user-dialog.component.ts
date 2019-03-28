@@ -60,7 +60,7 @@ export class NewUserDialogComponent implements OnInit {
     let isInvalidError: boolean = false;
     let emptyErrorFields: string[] = [];
     let invalidErrorFields: string[] = [];
-    if (this.data.newFname == undefined || this.data.newFName == "") {
+    if (this.data.newFname == undefined || this.data.newFname == "") {
       isError = true;
       isEmptyError = true;
       emptyErrorFields.push("First Name");

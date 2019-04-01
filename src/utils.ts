@@ -23,9 +23,6 @@ export function nonce(block: Block): number {
             }
         }
         if (valid) {
-            console.log("calculating nonce:");
-            console.log(possHashString);
-            console.log("nonce: "+nonce.toString())
             return nonce;
         } else {
             nonce++;
@@ -45,9 +42,6 @@ export function validateBlock(chain: Block[], block: Block): boolean {
         data: possBlock.data,
         nonce: possNonce
     })
-    console.log("validating block:");
-    console.log("previous_hash: "+block.previous_hash);
-    console.log("block json: "+json);
     let possHashString: string = block.previous_hash + json;
     let possHash: string = sha256(possHashString);
 

@@ -138,12 +138,13 @@ export class AdminDashboardComponent implements OnInit {
         result.selectedUsers.forEach(user_id => {
           let ug: UserGroup = new UserGroup();
           ug.group_id = this.newGroupID; ug.user_id = user_id;
-          let result: any; let success: boolean;
+          let ugResult: any; let ugSuccess: boolean;
           this.userService.postUserGroup(ug)
             .subscribe(_result => {
-              result = _result;
-              success = result;
-              if (success) {
+              ugResult = _result;
+              ugSuccess = ugResult;
+              let gcResult: any; let gcSuccess: boolean;
+              if (ugSuccess) {
                 this.toastr.success("id: "+user_id.toString(), "User successfully added to Group.");
                 this.getUserList(this.user.id, this.newGroupID);
               } else {

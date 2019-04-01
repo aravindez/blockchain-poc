@@ -6,4 +6,5 @@ export class Chain {
     public created_by: number;
     public initValue: any;
     public users: number[];
+    public groups: string[];
 }

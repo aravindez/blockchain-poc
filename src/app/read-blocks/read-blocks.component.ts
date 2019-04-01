@@ -267,13 +267,17 @@ export class ReadBlocksComponent implements OnInit {
 
     createBlock(newBlock: Block) {
         let rawResult: any;
-        let newBlockResult: boolean;
+        let newBlockResult: number;
         this.blockService.createBlock(newBlock)
             .subscribe(result => {
                 rawResult = result;
                 newBlockResult = rawResult;
-                if (newBlockResult) {
+                if (newBlockResult != 0) {
                     this.toastr.success(newBlock.data.toString(), "Block Added");
+                    let storedChain: Block[] = JSON.parse(localStorage.getItem(newBlock.chain_id.toString()));
+                    newBlock.id = newBlockResult;
+                    storedChain.push(newBlock);
+                    localStorage.setItem(newBlock.chain_id.toString(), JSON.stringify(storedChain));
                     this.getBlocks();
                 } else {
                     this.toastr.error(newBlock.data.toString(), "Invalid Data");

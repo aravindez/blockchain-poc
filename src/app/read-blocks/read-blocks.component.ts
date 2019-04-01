@@ -158,29 +158,33 @@ export class ReadBlocksComponent implements OnInit {
                 this.newChainName = result.chainDialogName;
                 this.newChainInitData = result.chainDialogInitData;
                 this.newChainUsers = result.selectedUsers;
-                this.newChainGroups = result.selectedGroups;
-                result.selectedGroups.forEach(group_id => {
-                    let results: any; let user: User;
-                    this.userService.getGroupUsers(group_id)
-                        .subscribe(_users => {
-                            results = _users;
-                            results.forEach(result => {
-                                user = result;
-                                result = user;
-                            });
-                            let users: User[] = results;
-                            let limit = users.length; let i = 1;
-                            users.forEach(user => {
-                                if (this.newChainUsers != undefined) {
-                                    if (this.newChainUsers.indexOf(user.id.toString()) == -1) {
-                                        this.newChainUsers.push(user.id);
-                                    }
-                                } else { this.newChainUsers = [user.id]; }
-                                if (i==limit) { this.createChain(); }
-                                i++;
+                if (result.selectedGroups == undefined || result.selectedGroups == null)
+                { this.newChainGroups = []; this.createChain() }
+                else {
+                    this.newChainGroups = result.selectedGroups;
+                    result.selectedGroups.forEach(group_id => {
+                        let results: any; let user: User;
+                        this.userService.getGroupUsers(group_id)
+                            .subscribe(_users => {
+                                results = _users;
+                                results.forEach(result => {
+                                    user = result;
+                                    result = user;
+                                });
+                                let users: User[] = results;
+                                let limit = users.length; let i = 1;
+                                users.forEach(user => {
+                                    if (this.newChainUsers != undefined) {
+                                        if (this.newChainUsers.indexOf(user.id.toString()) == -1) {
+                                            this.newChainUsers.push(user.id);
+                                        }
+                                    } else { this.newChainUsers = [user.id]; }
+                                    if (i==limit) { this.createChain(); }
+                                    i++;
+                                });
                             });
                         });
-                    });
+                }
             }
         });
     }
@@ -192,7 +196,6 @@ export class ReadBlocksComponent implements OnInit {
         newChain.initValue = this.newChainInitData;
         newChain.users = this.newChainUsers;
         newChain.groups = this.newChainGroups;
-        console.log(this.newChainGroups);
 
         //figure out how to insert timestamp before inserting in the DB
         let initBlock: Block = new Block()
@@ -222,14 +225,18 @@ export class ReadBlocksComponent implements OnInit {
     }
 
     postInitBlock(initBlock: Block) {
-        let initBlockResult: boolean = false;
+        let initBlockResult: number;
         let rawResult: any;
         this.blockService.createInitBlock(initBlock)
             .subscribe(result => {
                 rawResult = result;
                 initBlockResult = rawResult;
-                if (initBlockResult) {
+                if (initBlockResult != 0) {
                     this.toastr.success(initBlock.data.toString(), "New Chain Initiated");
+                    let chain_id: number = initBlock.chain_id;
+                    initBlock.chain_id = undefined; initBlock.id = initBlockResult;
+                    let chain: Block[] = [initBlock];
+                    localStorage.setItem(chain_id.toString(), JSON.stringify(chain));
                     this.getChains();
                 } else {
                     this.toastr.error("Failed to initiate chain.", "Chain Failure");

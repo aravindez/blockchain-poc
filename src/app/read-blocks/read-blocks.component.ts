@@ -12,6 +12,8 @@ import { NewChainDialogComponent } from './new-chain-dialog/new-chain-dialog.com
 import * as utils from '../../utils';
 import { sha256 } from 'js-sha256';
 import { ToastrService } from 'ngx-toastr';
+import { HubConnection } from '@aspnet/signalr';
+import * as signalR from '@aspnet/signalr';
 
 @Component({
     selector: 'app-read-blocks',
@@ -20,6 +22,8 @@ import { ToastrService } from 'ngx-toastr';
     providers: [BlockService, ChainService, UserService, ValidationService]
 })
 export class ReadBlocksComponent implements OnInit {
+
+    private _hubConnection: HubConnection | undefined;
 
     //ui variables
     displayedColumns: string[] = ['timestamp', 'user_id', 'user_name', 'data', 'hash', 'nonce', 'isValid'];
@@ -61,6 +65,18 @@ export class ReadBlocksComponent implements OnInit {
         this.user = JSON.parse(sessionStorage.getItem("user"));
         this.getUsers(this.user.id);
         this.title = "Dashboard - Welcome "+this.user.name;
+
+        this._hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl('http://localhost:5000/BlockHub')
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+ 
+        this._hubConnection.start().catch(err => console.error(err.toString()));
+ 
+        this._hubConnection.on('ReceiveData', (data: any) => {
+            const received = `Received: ${data}`;
+            console.log(received);
+        });
 
         this.getChains(true);
         if (sessionStorage.getItem("failure") !== null) {
@@ -273,6 +289,9 @@ export class ReadBlocksComponent implements OnInit {
     }
 
     createBlock(newBlock: Block) {
+        if (this._hubConnection) {
+            this._hubConnection.invoke('Send');
+        }
         let rawResult: any;
         let newBlockResult: number;
         this.blockService.createBlock(newBlock)

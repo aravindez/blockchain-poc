@@ -8,12 +8,18 @@ import { AdminDashboardComponent } from './admin-dashboard.component';
 import { NewUserDialogComponent } from './new-user-dialog/new-user-dialog.component';
 import { NewGroupDialogComponent } from './new-group-dialog/new-group-dialog.component';
 import { AddUserDialogComponent } from './add-user-dialog/add-user-dialog.component';
+import { MatSortModule } from '@angular/material';
 
 @NgModule({
   imports: [
-    CommonModule, FormsModule, AdminDashboardRoutingModule, MaterialModule
+    CommonModule, FormsModule, AdminDashboardRoutingModule, MaterialModule, MatSortModule
   ],
-  declarations: [AdminDashboardComponent, NewUserDialogComponent, NewGroupDialogComponent, AddUserDialogComponent],
+  declarations: [
+    AdminDashboardComponent,
+    NewUserDialogComponent,
+    NewGroupDialogComponent,
+    AddUserDialogComponent
+  ],
   entryComponents: [
     NewUserDialogComponent, AddUserDialogComponent, NewGroupDialogComponent
   ]

@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatTableDataSource, MatPaginator, MatDialog, MatSnackBar } from '@angular/material';
+import { MatTableDataSource, MatPaginator, MatDialog, MatSnackBar, MatSort } from '@angular/material';
 import { NewGroupDialogComponent } from './new-group-dialog/new-group-dialog.component';
 import { NewUserDialogComponent } from './new-user-dialog/new-user-dialog.component';
 import { UserService } from '../services/user.service';
@@ -22,8 +22,9 @@ export class AdminDashboardComponent implements OnInit {
   title: string = "Admin Dashboard";
   loading: boolean;
   usersDataSource: any;
+  @ViewChild (MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
-  displayedColumns = ['select', 'id', 'email', 'name', 'groups'];
+  displayedColumns = [/*'select', */'id', 'email', 'name', 'groups'];
   
   user: User;
   groups: Group[] = [];
@@ -108,6 +109,7 @@ export class AdminDashboardComponent implements OnInit {
           groups = [];
           if (i == this.users.length-1) {
             this.usersDataSource = new MatTableDataSource(this.users);
+            this.usersDataSource.sort = this.sort;
             this.usersDataSource.paginator = this.paginator;
             this.loading = false;
           }

@@ -19,4 +19,5 @@ mat-progress-spinner {
     width: 30%;
     top: 40%;
     left: 40%;
+    z-index: 1000;
 }

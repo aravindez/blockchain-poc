@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { ServiceFactory } from './ServiceFactory';
 import { User } from '../../models/user';
 
 @Injectable({
@@ -9,13 +9,10 @@ export class LoginService {
 
 
     // We need Http to talk to a remote server
-    constructor(private _http : HttpClient) { }
+    constructor(private sf : ServiceFactory) { }
 
     // Get user info from remote server.
     getUser(uname, pword) {
-        return this._http
-            .get("http://localhost:5000/api/user/GetUserItem?uname="+uname+"&pword="+pword)
+        return this.sf.callRequest("GET", "/api/User/GetUserItem?uname="+uname+"&pword="+pword)
     }
-
-    // Checks if pending block has been validated
 }

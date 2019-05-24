@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { ServiceFactory } from './ServiceFactory';
 import { Block } from 'src/models/block';
 
 @Injectable({
@@ -8,21 +9,18 @@ import { Block } from 'src/models/block';
 export class BlockService {
 
     // We need Http to talk to a remote server
-    constructor(private _http : HttpClient) { }
+    constructor(private sf : ServiceFactory) { }
 
     // Get list of blocks from remote server.
     readBlocks(chain_id: number) {
-        return this._http
-          .get("http://localhost:5000/api/Chain/GetChain?chain_id="+chain_id.toString());
+        return this.sf.callRequest("GET", "/api/Chain/GetChain?chain_id="+chain_id.toString());
     }
 
     createBlock(block: Block) {
-        return this._http
-          .post("http://localhost:5000/api/Block/PostNewBlock", block);
+        return this.sf.callRequest("POST", "/api/Block/PostNewBlock", block);
     }
 
     createInitBlock(block: Block) {
-        return this._http
-          .post("http://localhost:5000/api/Block/PostInitBlock", block);
+        return this.sf.callRequest("POST", "/api/Block/PostInitBlock", block);
     }
 }

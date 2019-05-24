@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '../../node_modules/@angular/router';
 import { routerNgProbeToken } from '@angular/router/src/router_module';
 import { User } from 'src/models/user';
+import { HubConnection } from '@aspnet/signalr';
 
 @Component({
     selector: 'app-root',
@@ -19,6 +20,10 @@ export class AppComponent implements OnInit {
         this.title = 'Blockchain POC';
         this.router.navigate(['/login']);
         //this.router.navigate(['/read-blocks']);
+    }
+
+    goHome() {
+        this.router.navigate(['/login']);
     }
 
     logout() {

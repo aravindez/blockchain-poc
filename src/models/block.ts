@@ -9,4 +9,5 @@ export class Block {
         public nonce: number;
         public chain_id: number;
         public isValid: string;
+        public order: number;
 }

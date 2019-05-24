@@ -1,9 +1,7 @@
 <html>
     <body>
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
         <mat-toolbar class="header">
-          <span>{{title}}</span>
+          <span (click)="goHome()">{{title}}</span>
           <span class="space"></span>
           <span><button mat-button (click)="logout()"><mat-icon>close</mat-icon></button></span>
         </mat-toolbar>

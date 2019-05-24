@@ -10,6 +10,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { MaterialModule } from './material-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+import { MatSortModule } from '@angular/material';
 //import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
 //const config: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
@@ -25,6 +26,7 @@ import { ToastrModule } from 'ngx-toastr';
     RouterModule,
     MaterialModule,
     BrowserAnimationsModule,
+    MatSortModule,
     NgbModule.forRoot(),
     ToastrModule.forRoot()
     //SocketIoModule.forRoot(config)

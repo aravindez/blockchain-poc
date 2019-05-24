@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, Output, EventEmitter, Inject } from '@angular/core';
-import { MatTableDataSource, MatPaginator, MatDialog, MatSnackBar } from '@angular/material';
+import { Component, OnInit, Input, Output, EventEmitter, Inject, ViewChild } from '@angular/core';
+import { MatTableDataSource, MatPaginator, MatDialog, MatSnackBar, MatSort } from '@angular/material';
 import { BlockService } from '../services/block.service';
 import { ChainService } from '../services/chain.service';
 import { UserService } from '../services/user.service';
@@ -14,6 +14,9 @@ import { sha256 } from 'js-sha256';
 import { ToastrService } from 'ngx-toastr';
 import { HubConnection } from '@aspnet/signalr';
 import * as signalR from '@aspnet/signalr';
+import { Validation } from 'src/models/validation';
+import { environment } from '../../environments/environment';
+import { invoke } from 'q';
 
 @Component({
     selector: 'app-read-blocks',
@@ -23,10 +26,11 @@ import * as signalR from '@aspnet/signalr';
 })
 export class ReadBlocksComponent implements OnInit {
 
-    private _hubConnection: HubConnection | undefined;
+    @ViewChild(MatSort) sort: MatSort;
+    private hub: HubConnection | undefined;
 
     //ui variables
-    displayedColumns: string[] = ['timestamp', 'user_id', 'user_name', 'data', 'hash', 'nonce', 'isValid'];
+    displayedColumns: string[] = ['order', 'timestamp', 'created_by', 'user_name', 'previous_hash', 'data', 'hash', 'nonce', 'isValid'];
     blocksDataSource: any;
     users: User[] = [];
     blocks: Block[];
@@ -46,6 +50,7 @@ export class ReadBlocksComponent implements OnInit {
 
     // info from create block and chain
     blockDialogInput: any;
+    newBlock: Block = new Block();
     newBlockData: any;
     newChainName: any;
     newChainInitData: any;
@@ -66,22 +71,68 @@ export class ReadBlocksComponent implements OnInit {
         this.getUsers(this.user.id);
         this.title = "Dashboard - Welcome "+this.user.name;
 
-        this._hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl('http://localhost:5000/BlockHub')
+        this.hub = new signalR.HubConnectionBuilder()
+            .withUrl(environment.apiRoot + '/BlockchainHub')
             .configureLogging(signalR.LogLevel.Information)
             .build();
  
-        this._hubConnection.start().catch(err => console.error(err.toString()));
+        this.hub.start().catch(err => console.error(err.toString()));
+
+        this.hub.on('createBlock', (result: boolean) => {
+            console.log("createBlock");
+            console.log(result);
+            if (result == true) {
+                this.createBlock();
+                this.loading = false;
+            } else {
+                this.loading = false;
+                this.concurrencyError();
+            }
+        });
  
-        this._hubConnection.on('ReceiveData', (data: any) => {
-            const received = `Received: ${data}`;
-            console.log(received);
+        this.hub.on('Validate', (block: Block) => {
+            console.log("On Validate");
+            //console.log(block);
+            if (block.created_by != this.user.id) {
+                let chain: Block[] = JSON.parse(localStorage.getItem(block.chain_id.toString()));
+                console.log("chain: " + chain.toString());
+                let validation: Validation = new Validation();
+                validation.user_id = this.user.id;
+                validation.block_id = block.id;
+                validation.isValid = utils.validateBlock(chain, block) ? 1 : 0;
+                console.log("Invoke Validation");
+                console.log(block.chain_id);
+                this.hub.invoke('Validation', validation, block);
+            }
+        });
+
+        this.hub.on('Validated', (chain: any) => {
+            console.log("Validated");
+            let chain_id: number = chain;
+            console.log(this.chain.id);
+            console.log(chain_id);
+            //this.getChains(false, true);
+            if (this.chain.id == chain_id) {
+                console.log("hit refresh chain");
+                this.getBlocks();
+            }
+        });
+
+        this.hub.on("RefreshChains", (chain_id: number, chain: Block[]) => {
+            console.log("New Chain Created");
+            localStorage.setItem(chain_id.toString(), JSON.stringify(chain));
+            this.getChains(false, true);
         });
 
         this.getChains(true);
-        if (sessionStorage.getItem("failure") !== null) {
-            this.toastr.error(sessionStorage.getItem("failure"));
-        }
+        //if (sessionStorage.getItem("failure") !== null) {
+        //    this.toastr.error(sessionStorage.getItem("failure"));
+        //}
+    }
+
+    concurrencyError() {
+        this.toastr.error("A block already exists with the provided `previous_hash`.", "Concurrency Error");
+        console.log("mfer");
     }
 
     getUsers(user_id: number) {
@@ -96,7 +147,7 @@ export class ReadBlocksComponent implements OnInit {
             });
     }
 
-    getChains(init: boolean = false) {
+    getChains(init: boolean = false, refresh: boolean = false) {
         this.loading = true;
         this.chainService.getChains(this.user.id)
           .subscribe(_chains => {
@@ -108,9 +159,11 @@ export class ReadBlocksComponent implements OnInit {
             this.chains = this.tempList;
             this.tempList = null;
             this.tempChain = null;
-            this.chain = this.chains[init ? 0 : this.chains.length-1];
-            this.newChainID = this.chain.id;
-            this.getBlocks();
+            if (!refresh) {
+                this.chain = this.chains[init ? 0 : this.chains.length-1];
+                this.newChainID = this.chain.id;
+                this.getBlocks();
+            } else { this.loading = false; }
         });
     }
 
@@ -131,11 +184,15 @@ export class ReadBlocksComponent implements OnInit {
 
     getValidations() {
         for (let i = 0; i<this.blocks.length; i++) {
-            let validResult: any;
+            let validResult: any; let validation: Validation;
             this.validationService.getValidation(this.blocks[i].id)
                 .subscribe(result => {
                     validResult = result;
-                    this.blocks[i].isValid = validResult;
+                    validation = validResult;
+                    if (validation.isValidString.length > 7) {
+                        this.toastr.error(validation.isValidString, "Middleware Failure");
+                    }
+                    else { this.blocks[i].isValid = validation.isValidString; }
                     if (i==this.blocks.length-1) {
                         let j: number = 0;
                         /*
@@ -145,7 +202,12 @@ export class ReadBlocksComponent implements OnInit {
                             } else { j++; }
                         }
                         */
+                        let o: number = 1;
+                        this.blocks.forEach(block => {
+                            block.order = o++;
+                        });
                         this.blocksDataSource = new MatTableDataSource(this.blocks);
+                        this.blocksDataSource.sort = this.sort;
                         this.loading = false;
                     }
                 });
@@ -254,6 +316,8 @@ export class ReadBlocksComponent implements OnInit {
                     let chain: Block[] = [initBlock];
                     localStorage.setItem(chain_id.toString(), JSON.stringify(chain));
                     this.getChains();
+                    console.log("invoke RefreshChains");
+                    this.hub.invoke("RefreshChains", chain_id, chain);
                 } else {
                     this.toastr.error("Failed to initiate chain.", "Chain Failure");
                 }
@@ -269,45 +333,50 @@ export class ReadBlocksComponent implements OnInit {
         if (result != undefined) {
           this.newBlockData = result;
 
-          let newBlock: Block = new Block()
-          newBlock.previous_hash = this.blocks[this.blocks.length-1].hash;
-          newBlock.created_by = this.user.id;
-          newBlock.data = +this.newBlockData;
-          newBlock.nonce = utils.nonce(newBlock);
+          //let newBlock: Block = new Block()
+          this.newBlock.previous_hash = this.blocks[this.blocks.length-1].hash;
+          this.newBlock.created_by = this.user.id;
+          this.newBlock.data = +this.newBlockData;
+          this.newBlock.nonce = utils.nonce(this.newBlock);
           let json: string = JSON.stringify({
-              created_by: newBlock.created_by,
-              data: newBlock.data,
-              nonce: newBlock.nonce
+              created_by: this.newBlock.created_by,
+              data: this.newBlock.data,
+              nonce: this.newBlock.nonce
           });
-          newBlock.hash = sha256(newBlock.previous_hash+json);
-          newBlock.chain_id = this.chain.id;
+          this.newBlock.hash = sha256(this.newBlock.previous_hash+json);
+          this.newBlock.chain_id = this.chain.id;
+          console.log("invoke CheckBlock");
+          this.hub.invoke('CheckBlock', this.newBlock);
+          this.loading = true;
 
-          this.createBlock(newBlock);
           this.newBlockData = "";
         }
       });
     }
 
-    createBlock(newBlock: Block) {
-        if (this._hubConnection) {
-            this._hubConnection.invoke('Send');
-        }
+    createBlock() {
         let rawResult: any;
         let newBlockResult: number;
-        this.blockService.createBlock(newBlock)
+        this.blockService.createBlock(this.newBlock)
             .subscribe(result => {
                 rawResult = result;
                 newBlockResult = rawResult;
-                if (newBlockResult != 0) {
-                    this.toastr.success(newBlock.data.toString(), "Block Added");
-                    let storedChain: Block[] = JSON.parse(localStorage.getItem(newBlock.chain_id.toString()));
-                    newBlock.id = newBlockResult;
-                    storedChain.push(newBlock);
-                    localStorage.setItem(newBlock.chain_id.toString(), JSON.stringify(storedChain));
-                    this.getBlocks();
+                console.log("newBlockResult: " + newBlockResult);
+                if (newBlockResult == 0) {
+                    this.toastr.error(this.newBlock.data.toString(), "Invalid Data");
+                } else if (newBlockResult == -1) {
+                    this.toastr.error("Error was thrown in Middleware.", "Request Error");
                 } else {
-                    this.toastr.error(newBlock.data.toString(), "Invalid Data");
+                    this.toastr.success(this.newBlock.data.toString(), "Block Added");
+                    let storedChain: Block[] = JSON.parse(localStorage.getItem(this.newBlock.chain_id.toString()));
+                    this.newBlock.id = newBlockResult;
+                    storedChain.push(this.newBlock);
+                    localStorage.setItem(this.newBlock.chain_id.toString(), JSON.stringify(storedChain));
+                    console.log("invoke NewBlock");
+                    this.hub.invoke('NewBlock', this.newBlock.id, this.newBlock.chain_id);
+                    this.getBlocks();
                 }
+                this.newBlock = new Block();
             });
     }
 }

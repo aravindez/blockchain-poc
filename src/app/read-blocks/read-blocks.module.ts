@@ -9,10 +9,16 @@ import { ReadBlocksComponent} from './read-blocks.component';
 
 import { NewBlockDialogComponent } from './new-block-dialog/new-block-dialog.component';
 import { NewChainDialogComponent } from './new-chain-dialog/new-chain-dialog.component';
+import { MatSortModule } from '@angular/material';
 
 @NgModule({
   imports: [
-    CommonModule, ReadBlocksRoutingModule, FormsModule, MaterialModule, ToastrModule
+    CommonModule,
+    ReadBlocksRoutingModule,
+    FormsModule,
+    MaterialModule,
+    ToastrModule,
+    MatSortModule
   ],
   declarations: [ReadBlocksComponent, NewBlockDialogComponent, NewChainDialogComponent],
   entryComponents: [

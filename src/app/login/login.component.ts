@@ -22,11 +22,11 @@ export class LoginComponent implements OnInit {
 
   public loading: boolean = false;
 
-  private user_cred: Credentials = new Credentials();
-  private user: User;
-  private tempUser: any;
+  public user_cred: Credentials = new Credentials();
+  public user: User;
+  public tempUser: any;
 
-  private remember_me: boolean = false;
+  public remember_me: boolean = false;
 
   public error_message: string = "";
 
@@ -41,6 +41,7 @@ export class LoginComponent implements OnInit {
       if (user.admin == 1) {
         this.router.navigate(['/admin-dashboard']);
       } else {
+        //this.router.navigate(['/read-blocks']);
         this.getPendingBlocks(user.id);
       }
     } else if (localStorage.getItem("user") !== null) {
@@ -50,6 +51,7 @@ export class LoginComponent implements OnInit {
       if (user.admin == 1) {
         this.router.navigate(['/admin-dashboard']);
       } else {
+        //this.router.navigate(['/read-blocks']);
         this.getPendingBlocks(user.id);
       }
     }

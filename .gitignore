@@ -53,6 +53,6 @@ Thumbs.db
 
 # socket.io test files
 /src/app/services/socket.service.ts
-/src/app/services/chain.service.ts
-/src/app/services/chain.service.spec.ts
+#/src/app/services/chain.service.ts
+#/src/app/services/chain.service.spec.ts
 /src/app/index.js
